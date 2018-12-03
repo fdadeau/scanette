@@ -70,6 +70,7 @@ function Scanette(db) {
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
+                refsInconnues.push(ean13);
                 return -2;
             }
             
@@ -222,7 +223,7 @@ function Caisse() {
     
     
     var demandeRelecture = function() {
-        return Math.random() < 0.1;
+        return true || Math.random() < 0.1;
     };
     
     this.ajouter = function(ean) {

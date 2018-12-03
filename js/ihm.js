@@ -85,7 +85,7 @@
                                     htmlPanier += "<p><span class='prix'>" + art.prix + "</span><span class='quantite'>" + qte + "</span>" + lib + "</p>";    
                                 }
                                 tot = tot.toFixed(2);
-                                this.ecran.innerHTML = "<h3>Votre panier</h3><div class='panier'>" + htmlPanier + "</div><div class='btnGauche'>Retirer</div><div class='total'>" + tot + " &euro;<br>" + nb + " article" + (nb > 1 ? "s" : "") + "</div>";
+                                this.ecran.innerHTML = "<h3>Votre panier</h3><div class='panier'>" + htmlPanier + "</div><div class='btnGauche'>Retirer</div><div class='total'><span class='prix'>" + tot + "</span> &euro;<br><span class='nbArticles'>" + nb + "</span> article" + (nb > 1 ? "s" : "") + "</div>";
                                 return;
                             case 2:     // relecture
                                 this.ecran.innerHTML = "<h3>Relecture du panier</h3>" + 
@@ -224,7 +224,7 @@
                         this.holder.scanette = this;
                         this.holder.takesCareOf = old_holder;
                         montrerCaisse(false);
-                        // this.holder.selectionner();
+                        this.holder.selectionner();
                     }
                     else { // r == -1
                         this.etat = 6;
@@ -600,7 +600,7 @@
                 if (currentSelection != null && currentSelection instanceof Caissier && currentSelection.index != i) 
                     return;
                 // tentative d'utiliser une caisse déjà prise
-                if (caissiers[i].takesCareOf != null) 
+                if (currentSelection instanceof Client && caissiers[i].takesCareOf != null) 
                     return;
                 // client essaie d'aller sur une caisse déjà utiliée.
                 if (currentSelection instanceof Client && caisses[i].caisse.client != null && currentSelection != caisses[i].caisse.client) {
@@ -608,7 +608,7 @@
                 }
                 
                 if (currentSelection instanceof Client) {
-                    var x = (caisses[i].x - 2) * pg.offsetWidth / 100 | 0;
+                    var x = (caisses[i].x - 1) * pg.offsetWidth / 100 | 0;
                     var y = (caisses[i].y + caisses[i].h * 0.75) * pg.offsetHeight / 100 | 0;
                     var after = afficherCaisse.bind(null, i);
                     currentSelection.deplacerVers(x, y, after);
@@ -759,6 +759,7 @@
                                     "Réferences inconnues. En attente d'un caissier." : 
                                     "Panier vide. Contrôle nécessaire par un caissier.")
                             + "</div>";
+                        break;
                     case 3:     // session_ouverte
                         var btnAjouter = document.createElement("div");
                         btnAjouter.className = "bouton";
@@ -1023,7 +1024,7 @@
                 }
                 if (i == art.rayon) {
                     htmlRayon += 
-                        "<div>" 
+                        "<div class='articleEnRayon' data-ean = '" + ean + "'>" 
                             + "<div class='article' style='background-image: url(./images/produits/" + ean + ".jpg)'>"
                                 + "<img src='./images/codes/" + ean + ".gif' data-ean='" + ean + "' class='codeBarre'>"
                                 + "<div class='ajouter' data-ean='" + ean + "'></div>"

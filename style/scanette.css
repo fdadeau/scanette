@@ -239,7 +239,7 @@ body {
     width: 6vw;
     height: 6vw;
     bottom: 1vw;
-    left: 1vw;
+    left: 2vw;
     border-radius: 0.6vw;
     background-image: url(../images/caddie.png);
     background-repeat: no-repeat;
@@ -449,6 +449,9 @@ div.contenu div.article img.codeBarre {
 .ajouter {
     background-image: url(../images/ajouter2.png);
 }
+.ajouter:active, .supprimer:active {
+    background-color: darkgreen;   
+}
 
 
 
@@ -526,7 +529,9 @@ div.contenu div.article img.codeBarre {
     content: ' ';
     position: absolute;
     height: 3vh;
+    box-sizing: border-box;
     bottom: -11vh;
+    width: 100%;
     left: 1px;
     border: solid 1px lightskyblue;
 }
@@ -535,13 +540,14 @@ div.contenu div.article img.codeBarre {
     position: absolute;   
     background-color: lightskyblue;
     width: 0%;
-    height: 3vh;
-    bottom: calc(-11vh - 1px);
+    box-sizing: border-box;
+    height: calc(3vh - 4px);
+    bottom: calc(-11vh + 2px);
     left: 2px;
     animation: animProgressBar 2s ease-in-out 0s;
 }
 @keyframes animProgressBar { 
-    from { width: 0%; } to { width: calc(100% - 4px); }
+    from { width: 2px; } to { width: calc(100% - 4px); }
 }
 
 #bcMoniteur .gauche, #bcMoniteur .droite {
