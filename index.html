@@ -1,1 +1,53 @@
-Scanette web
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src='js/ihm.js'></script>
+    <script src='js/scanette.js'></script>
+    <link href="style/scanette.css" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="playground"></div>
+    
+    
+    <input type="checkbox" id="cbRayon" hidden>
+    <div id="bcRayon"></div>
+    
+    
+    <label id="icCaddie" for="cbCaddie">
+        <div id="icPastille"></div>  
+    </label>
+    
+    <input type="checkbox" id="cbCaddie" hidden>
+    <div id="bcCaddie">
+        <h2>Contenu du caddie</h2>
+        <div class="contenu"></div>
+        <label for="cbCaddie" class="close"></label>
+    </div>
+    
+    <input type="checkbox" id="cbCaisse" hidden>
+    <div id="bcCaisse">
+        <div id="bcMoniteur"></div>
+        <img src="images/codes/1.gif" class="codeBarre">
+        <label for="cbCaisse" class="close"></label>
+        <div class="fente"></div>
+    </div>
+    
+    
+    <input type="checkbox" id="cbScanette" hidden>
+    <div id="bcScanette" class="prise">
+        <label for="cbScanette"></label>
+        <div id="bcEcran"></div>
+        <div id="btnHaut"></div> 
+        <div id="btnJaune"></div>
+        <div id="btnBas"></div>
+        <div id="btnOptGauche"></div>
+        <div id="btnOptDroit"></div>
+    </div>
+    
+
+    
+</body>
+</html>
