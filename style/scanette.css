@@ -59,7 +59,7 @@ body {
     background-color: black;
     position: absolute;
     background-size: cover;
-    width: 1vw;
+    width: 2vw;
     height: 3vw;
     cursor: pointer;
     top: 91%;
@@ -353,9 +353,9 @@ div.contenu div.article img.codeBarre {
 }
 #bcRayon .etiquette .codeBarre {
     position: absolute;
-    height: 8vh;
+    height: 8.5vh;
     bottom: 0;
-    width: 70%;
+    width: auto;
     display: block;
     left: 15%;
     clip: rect(32px,226px,72px,0px);

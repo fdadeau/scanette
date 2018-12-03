@@ -223,7 +223,7 @@ function Caisse() {
     
     
     var demandeRelecture = function() {
-        return true || Math.random() < 0.1;
+        return Math.random() < 0.1;
     };
     
     this.ajouter = function(ean) {

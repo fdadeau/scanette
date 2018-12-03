@@ -9,8 +9,8 @@
     function init(_ev) {
         
         var pg = document.getElementById("playground");
-        window.scrollTo(0, pg.offsetHeight);
-                
+        
+        window.scrollBy(0, pg.offsetHeight); 
 
         var currentSelection = null;
         
