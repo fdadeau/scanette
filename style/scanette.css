@@ -1,13 +1,14 @@
 body {
     margin: 0;
+    padding: 0;
     font-family: sans-serif;
 }
 
 
 #playground {
     position: relative;
-    height: calc((100vw * 659) / 736);
-    width: 100vw; 
+    height: calc((98vw * 659) / 736);
+    width: 98vw; 
     background: url(../images/supermarche-fond-2.jpg);
     background-size: cover;
     margin: 0 auto;
@@ -90,7 +91,7 @@ body {
     position: fixed;
     transition: bottom 0.3s linear 0s;
     bottom: -20vw;
-    right: 1vw;
+    right: 2vw;
     height: 24vw;
     width: calc((24vw * 335) / 490);
 }
@@ -110,7 +111,7 @@ body {
 #bcScanette > #bcEcran {
     background: blue;
     color: white;
-    font-size: 0.8vw;
+    font-size: 1.3vh;
     box-sizing: border-box;
     position: absolute; 
     width: 54%;
@@ -136,7 +137,7 @@ body {
 #bcEcran > .panier > p {
     margin: 0;
     padding: 0;
-    line-height: 1.8vh;
+    line-height: 1.5vh;
 }
 #bcEcran > .panier > p > .prix {
     float: right;

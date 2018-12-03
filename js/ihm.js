@@ -85,7 +85,7 @@
                                     htmlPanier += "<p><span class='prix'>" + art.prix + "</span><span class='quantite'>" + qte + "</span>" + lib + "</p>";    
                                 }
                                 tot = tot.toFixed(2);
-                                this.ecran.innerHTML = "<h3>Contenu du panier</h3><div class='panier'>" + htmlPanier + "</div><div class='btnGauche'>Retirer</div><div class='total'>" + tot + " &euro;<br>" + nb + " article" + (nb > 1 ? "s" : "") + "</div>";
+                                this.ecran.innerHTML = "<h3>Votre panier</h3><div class='panier'>" + htmlPanier + "</div><div class='btnGauche'>Retirer</div><div class='total'>" + tot + " &euro;<br>" + nb + " article" + (nb > 1 ? "s" : "") + "</div>";
                                 return;
                             case 2:     // relecture
                                 this.ecran.innerHTML = "<h3>Relecture du panier</h3>" + 
