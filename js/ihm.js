@@ -750,8 +750,8 @@
                         droite.innerHTML = 
                             "<div class='centre'>" 
                                 + (this.caisse.getReferenceInconnues().length > 0 ? 
-                                    "Réferences inconnues. En attente d'un caissier." : 
-                                    "Panier vide. Contrôle nécessaire par un caissier.")
+                                    "Réferences inconnues.<br><br>En attente d'un caissier." : 
+                                    "Panier vide.<br><br>Contrôle d'un caissier nécessaire.")
                             + "</div>";
                         break;
                     case 3:     // session_ouverte
