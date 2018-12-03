@@ -296,6 +296,7 @@
         for (var i=0; i < rayons.length; i++) {
             var divRayon = document.createElement("div");
             divRayon.className = "rayon";
+            divRayon.id = "rayon" + i;
             divRayon.style.top = rayons[i].y + "%";
             divRayon.style.left = rayons[i].x + "%";
             divRayon.style.width = rayons[i].w + "%";
