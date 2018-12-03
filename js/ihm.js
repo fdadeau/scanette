@@ -36,16 +36,7 @@
                     var cli = new Client(sc);
                     clients.push(cli);
                     sc.prendre(cli);
-                    /** Initial data */
-                    cli.ajouter(8718309259938);
-                    sc.current.scanner(8718309259938);
-                    cli.ajouter(3520115810259);
-                    cli.ajouter(3520115810259);
-                    sc.current.scanner(3520115810259);
-                    sc.current.scanner(3520115810259);
-                    //
                     cli.selectionner();
-                    // sc.transferer(caisses[3].caisse);
                 }
             }, false);
             pg.appendChild(icScanette);
@@ -387,7 +378,7 @@
                     for (var i=0; i < caddie.length; i++) {
                         var ean = caddie[i].ean;
                         inHTML += 
-                            "<div class='article' style='background-image: url(./images/produits/" + ean + ".jpg'>"
+                            "<div class='article' data-ean='" + ean + "' style='background-image: url(./images/produits/" + ean + ".jpg'>"
                                 + "<img src='./images/codes/" + ean + ".gif' data-ean='" + ean + "' class='codeBarre'>"
                                 + "<div class='supprimer' data-index='" + i + "'></div>"
                             + "</div>";
@@ -632,6 +623,9 @@
                     if (r == 0) {
                         bcCaisse.classList.remove("session");   
                         caisses[e.target.dataset.index].caisse.afficher();
+                        if (caisses[e.target.dataset.index].caisse.caisse.getState() == 0) {
+                            caisses[e.target.dataset.index].caisse.terminer();
+                        }
                     }
                 }
                 else {
