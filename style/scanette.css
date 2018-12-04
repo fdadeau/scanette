@@ -4,7 +4,9 @@ body {
     font-family: sans-serif;
 }
 
-
+/***********************************************************
+ *              Intérieur du supermarché
+ ***********************************************************/
 #playground {
     position: relative;
     height: calc((98vw * 659) / 736);
@@ -20,7 +22,6 @@ body {
     border: none; /* solid 2px red; */
     cursor: pointer;
 }
-
 
 #playground .sprite {
     position: absolute;
@@ -39,9 +40,7 @@ body {
     background-image: url(../images/sprite9.png);
     background-position: -6vw -6vw;
 }
-#playground .client {
-    
-}
+
 #playground .selected:after {
     display: block;
     content: ' ';
@@ -53,6 +52,9 @@ body {
     width: 1vw;
     height: 1vw;
 }
+
+
+/**** Zone de prise des scanettes ****/
 
 #playground .icScanette {
     background-image: url(../images/scanette.png);
@@ -80,6 +82,9 @@ body {
 }
 
 
+/***********************************************************
+ *              Bloc "Scanette"
+ ***********************************************************/
 
 #playground.withScanette ~ #bcScanette {
     display: block;
@@ -223,6 +228,10 @@ body {
 }
 
 
+/***********************************************************
+ *                       Caddie
+ ***********************************************************/
+
 #playground.selected ~ #icCaddie, #playground.takesCare ~ #icCaddie {
     display: block;
 }
@@ -232,9 +241,6 @@ body {
     background-color: beige;
 }
 
-/*** 
- *   Caddie
- **/
 #icCaddie {
     width: 6vw;
     height: 6vw;
@@ -280,6 +286,7 @@ body {
 }
 
 
+/**** Affichage commun au caddie et aux rayons ****/
 div.contenu {
     display: flex;
     flex-direction: row;
@@ -321,6 +328,10 @@ div.contenu div.article img.codeBarre {
     cursor: url(../images/point-vert.png) 20 20, auto;
 }
 
+
+/***********************************************************
+ *                       Rayons
+ ***********************************************************/
 
 #cbRayon:checked + #bcRayon {
     display: block;   
@@ -403,7 +414,7 @@ div.contenu div.article img.codeBarre {
 }
 
 
-
+/**** Boutons présents dans les fenêtres (rayons, caddie, caisse) ****/
 .close, .supprimer, .ajouter {
     display: block;
     position: absolute;
@@ -456,9 +467,9 @@ div.contenu div.article img.codeBarre {
 
 
 
-/************************************
- ******          CAISSE         *****
- ************************************/
+/***********************************************************
+ *                       CAISSES
+ ***********************************************************/
 
 #cbCaisse:checked + #bcCaisse {
     display: block;   
@@ -661,9 +672,9 @@ div.contenu div.article img.codeBarre {
 }
 
 
-/***********************************
-***   CLIENTS ET ANIMATIONS
-************************************/
+/***********************************************************
+*                   CLIENTS (+ Animations)
+ ***********************************************************/
 .client1 {
     background-image: url(../images/sprite1.png);   
 }
