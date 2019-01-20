@@ -36,6 +36,16 @@ function ArticleDB(_caisse) {
     this.getArticlesEAN = function() {
         return Object.keys(articles);   
     }
+    
+    this.getArticleForRayon = function(r) {
+        var ret = [];
+        for (var ean in articles) {
+            if (articles[ean].rayon == r) {
+                ret.push(articles[ean]);   
+            }
+        }
+        return ret;
+    }
 }
     
     
@@ -56,7 +66,10 @@ function Scanette(db) {
     var aRelire = 0;
     var relu = {};
     
+    this.numero = 0;
+    
     this.debloquer = function() {
+        console.log("scan" + this.numero + ".debloquer()"); 
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
@@ -66,7 +79,7 @@ function Scanette(db) {
     }
     
     this.scanner = function(ean13) {
-        
+        console.log("scan" + this.numero + ".scanner(" + ean13 +")");         
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
@@ -106,6 +119,7 @@ function Scanette(db) {
     }
     
     this.supprimer = function(ean13) {
+        console.log("scan" + this.numero + ".supprimer(" + ean13 + ")");
         if (state != STATE.en_courses) {
             return -1;
         }
@@ -119,18 +133,22 @@ function Scanette(db) {
     }
     
     this.quantite = function(ean13) {
+        console.log("scan" + this.numero + ".quantite(" + ean13 + ")");
         return (panier[ean13]) ? panier[ean13].quantite : 0;   
     }
     
     this.getArticles = function() {
+        console.log("scan" + this.numero + ".getArticles()");
         return Object.values(panier).sort(function (a1, a2) { return a2.lastScan - a1.lastScan; }).map(function(e) { return e.article; });
     }
     
     this.getReferencesInconnues = function() {
+        console.log("scan" + this.numero + ".getReferencesInconnues()");
         return refsInconnues;   
     }
         
     this.abandon = function() {
+        console.log("scan" + this.numero + ".abandon()");
         panier = {};
         refsInconnues = [];
         state = STATE.bloquee;
@@ -145,6 +163,7 @@ function Scanette(db) {
     }
     
     this.transmission = function(c) {
+        console.log("scan" + this.numero + ".transmission(caisse" + c.numero + ")");
         if (state != STATE.en_courses && state != STATE.relecture_ok) {
             return -1;       
         }
@@ -182,13 +201,14 @@ function Caisse() {
     var STATE = { en_attente: 0, paiement: 1, attente_caissier: 2, session_ouverte: 3 };
     var state = STATE.en_attente;
     
+    this.numero = 0;
     
     this.getState = function() {
         return state;   
     }
     
     this.connexion = function(scan) {
-        
+        console.log("caisse" + this.numero + ".connexion(scan" + scan.numero + ")");    
         if (state != STATE.en_attente) {
             return -1;
         }
@@ -227,6 +247,7 @@ function Caisse() {
     };
     
     this.ajouter = function(ean) {
+        console.log("caisse" + this.numero + ".ajouter(" + ean + ")");    
         if (state != STATE.session_ouverte) {
             return -1;   
         }
@@ -242,6 +263,7 @@ function Caisse() {
     }
     
     this.supprimer = function(ean) {
+        console.log("caisse" + this.numero + ".supprimer(" + ean + ")");    
         if (state != STATE.session_ouverte) {
             return -1;
         }
@@ -256,6 +278,7 @@ function Caisse() {
     }
     
     this.ouvrirSession = function() {
+        console.log("caisse" + this.numero + ".ouvrirSession()");            
         if (state != STATE.paiement && state != STATE.attente_caissier) {
             return -1;      
         }
@@ -264,6 +287,7 @@ function Caisse() {
     }
     
     this.fermerSession = function() {
+        console.log("caisse" + this.numero + ".fermerSession()");            
         if (state != STATE.session_ouverte) {
             return -1;   
         }
@@ -272,22 +296,19 @@ function Caisse() {
     }
     
     this.abandon = function() {
+        console.log("caisse" + this.numero + ".abandon()");            
         state = STATE.en_attente;
         achats = {};
         refsInconnues = [];
     }
     
     this.payer = function(somme) {
+        console.log("caisse" + this.numero + ".payer()");            
         if (state != STATE.paiement) {
             return -1; 
         }
         
-        var ean = Object.keys(achats);
-        var aPayer = 0;
-        for (var i=0; i < ean.length; i++) {
-            aPayer += achats[ean[i]].quantite * achats[ean[i]].article.prix;
-        }
-        aPayer = aPayer.toFixed(2);
+        var aPayer = this.getMontantTotal();
         
         if (somme >= aPayer) {
             state = STATE.en_attente;   
@@ -299,8 +320,16 @@ function Caisse() {
     this.getAchats = function() {
         return achats;   
     };
-    this.getReferenceInconnues = function() {
+    this.getReferencesInconnues = function() {
         return refsInconnues;   
+    };
+    this.getMontantTotal = function() {
+        var ean = Object.keys(achats);
+        var aPayer = 0;
+        for (var i=0; i < ean.length; i++) {
+            aPayer += achats[ean[i]].quantite * achats[ean[i]].article.prix;
+        }
+        return aPayer.toFixed(2);    
     }
     
 }
