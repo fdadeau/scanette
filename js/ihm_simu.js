@@ -416,7 +416,11 @@
             this.getCaddie = function() {
                 return caddie;   
             }
-            
+            this.removeFromCaddie = function(i) {
+                var ret = caddie.splice(caddie.length-1, 1);
+                return ret[0];
+            }
+                
             var divSprite;
                         
             this.scanette = scan;
@@ -608,6 +612,10 @@
             
             this.terminer = function() {
                 this.fini = true;
+                if (this.caisse) {
+                    this.caisse.client = null;
+                    this.caisse = null;
+                }
                 this.deselectionner();
                 if (this.scanette != null) {
                     this.scanette.reposer();   
@@ -715,6 +723,9 @@
             var moniteur = document.getElementById("bcMoniteur");
             
             this.afficher = function() {
+                if (selectedCaisse != this) {
+                    return;
+                }
                 document.getElementById("bcCaisse").classList.remove("session");
                 switch (this.caisse.getState()) {
                     case 0:     // en attente
@@ -920,7 +931,7 @@
                 var r = this.caisse.fermerSession();   
                 if (document.querySelector("#cbCaisse").checked) {
                     var bcCaisse = document.getElementById("bcCaisse");
-                    if (r == 0) {
+                    if (r == 0 && selectedCaisse == this) {
                         bcCaisse.classList.remove("session");   
                         this.afficher();
                         if (this.caisse.getState() == 0) {
@@ -937,7 +948,7 @@
             this.ouvrirSession = function() {
                 var r = this.caisse.ouvrirSession();   
                 if (document.querySelector("#cbCaisse").checked) {
-                    if (r == 0) {
+                    if (r == 0 && selectedCaisse == this) {
                         var bcCaisse = document.getElementById("bcCaisse");
                         bcCaisse.classList.add("session");   
                         this.afficher();
@@ -950,6 +961,7 @@
             this.annuler = function() {
                 document.getElementById("bcMoniteur").innerHTML = "<p class='centre'>Transaction annulée.</p>";
                 this.caisse.abandon();
+                this.client = null;
                 currentSelection.deselectionner();
                 if (!simu) {
                     setTimeout(function() { montrerCaisse(false); }, 1000);
@@ -1215,6 +1227,7 @@
                             obj: ajouterClient(scanetteLibre.dataset.index), 
                             manifest: calculeListeCourses(Math.random() * 10 | 0 + 5), 
                             etourderie: Math.random() / 50,
+                            indecision: Math.random() / 40,
                             index: nbAgents
                         };
                         console.log("[" + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
@@ -1230,6 +1243,17 @@
                             continue;
                         }
                         // ASSERT il ne se déplace pas
+                        
+                        
+                        // l'utilisateur décide de retirer un produit de son panier 
+                        if (agent.obj.scanette && agent.obj.getCaddie().length > 0 && Math.random() < agent.indecision) {
+                            // retrait du produit du caddie
+                            var prod = agent.obj.removeFromCaddie(agent.obj.getCaddie().length * Math.random() | 0);
+                            // suppression sur la scanette
+                            agent.obj.scanette.current.supprimer(prod.ean);
+                            console.log("[Client " + agent.index + "] Retire un produit " + prod.ean);   
+                        }
+                        
                         
                         // manifeste pas vide --> va chercher le produit suivant
                         if (agent.manifest.length > 0) {

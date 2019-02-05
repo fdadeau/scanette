@@ -52,6 +52,7 @@ function ArticleDB(_caisse) {
 /******************************************************************************************
  *                                      SCANETTE
  *******************************************************************************************/
+var logging = new Log();
 
 function Scanette(db) {
     
@@ -69,7 +70,8 @@ function Scanette(db) {
     this.numero = 0;
     
     this.debloquer = function() {
-        console.log("scan" + this.numero + ".debloquer()"); 
+        logging.addLog("INFO", "Scanette.debloquer", null, this.numero);
+        //console.log("scan" + this.numero + ".debloquer()"); 
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
@@ -79,7 +81,8 @@ function Scanette(db) {
     }
     
     this.scanner = function(ean13) {
-        console.log("scan" + this.numero + ".scanner(" + ean13 +")");         
+        logging.addLog("INFO", "Scanette.scanner", ean13, this.numero);
+        //console.log("scan" + this.numero + ".scanner(" + ean13 +")");         
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
@@ -119,7 +122,8 @@ function Scanette(db) {
     }
     
     this.supprimer = function(ean13) {
-        console.log("scan" + this.numero + ".supprimer(" + ean13 + ")");
+        logging.addLog("INFO", "Scanette.supprimer", ean13, this.numero);
+        //console.log("scan" + this.numero + ".supprimer(" + ean13 + ")");
         if (state != STATE.en_courses) {
             return -1;
         }
@@ -133,37 +137,44 @@ function Scanette(db) {
     }
     
     this.quantite = function(ean13) {
-        console.log("scan" + this.numero + ".quantite(" + ean13 + ")");
+        logging.addLog("INFO", "Scanette.quantite", ean13, this.numero);
+        //console.log("scan" + this.numero + ".quantite(" + ean13 + ")");
         return (panier[ean13]) ? panier[ean13].quantite : 0;   
     }
     
     this.getArticles = function() {
-        console.log("scan" + this.numero + ".getArticles()");
+        logging.addLog("INFO", "Scanette.getArticles", null, this.numero);
+        //console.log("scan" + this.numero + ".getArticles()");
         return Object.values(panier).sort(function (a1, a2) { return a2.lastScan - a1.lastScan; }).map(function(e) { return e.article; });
     }
     
     this.getReferencesInconnues = function() {
-        console.log("scan" + this.numero + ".getReferencesInconnues()");
+        logging.addLog("INFO", "Scanette.getReferencesInconnues", null, this.numero);
+        //console.log("scan" + this.numero + ".getReferencesInconnues()");
         return refsInconnues;   
     }
         
     this.abandon = function() {
-        console.log("scan" + this.numero + ".abandon()");
+        logging.addLog("INFO", "Scanette.abandon", null, this.numero);
+        //console.log("scan" + this.numero + ".abandon()");
         panier = {};
         refsInconnues = [];
         state = STATE.bloquee;
     }
     
     this.getState = function() {
+        logging.addLog("INFO", "Scanette.getState", null, this.numero);
         return state;   
     }
     
     this.getARelire = function() {
+        logging.addLog("INFO", "Scanette.getARelire", null, this.numero);
         return aRelire;   
     }
     
     this.transmission = function(c) {
-        console.log("scan" + this.numero + ".transmission(caisse" + c.numero + ")");
+        logging.addLog("INFO", "Scanette.transmission", c, this.numero);
+        //console.log("scan" + this.numero + ".transmission(caisse" + c.numero + ")");
         if (state != STATE.en_courses && state != STATE.relecture_ok) {
             return -1;       
         }
@@ -202,13 +213,15 @@ function Caisse() {
     var state = STATE.en_attente;
     
     this.numero = 0;
-    
+
     this.getState = function() {
+        logging.addLog("INFO", "Caisse.getState", null, this.numero);
         return state;   
     }
     
     this.connexion = function(scan) {
-        console.log("caisse" + this.numero + ".connexion(scan" + scan.numero + ")");    
+        logging.addLog("INFO", "Caisse.connexion", scan, this.numero);
+        //console.log("caisse" + this.numero + ".connexion(scan" + scan.numero + ")");    
         if (state != STATE.en_attente) {
             return -1;
         }
@@ -243,11 +256,13 @@ function Caisse() {
     
     
     var demandeRelecture = function() {
+        logging.addLog("INFO", "Caisse.demandeRelecture", null, this.numero);
         return Math.random() < 0.1;
     };
     
     this.ajouter = function(ean) {
-        console.log("caisse" + this.numero + ".ajouter(" + ean + ")");    
+        logging.addLog("INFO", "Caisse.ajouter", ean, this.numero);
+        //console.log("caisse" + this.numero + ".ajouter(" + ean + ")");    
         if (state != STATE.session_ouverte) {
             return -1;   
         }
@@ -263,7 +278,8 @@ function Caisse() {
     }
     
     this.supprimer = function(ean) {
-        console.log("caisse" + this.numero + ".supprimer(" + ean + ")");    
+        logging.addLog("INFO", "Caisse.supprimer", ean, this.numero);
+        //console.log("caisse" + this.numero + ".supprimer(" + ean + ")");    
         if (state != STATE.session_ouverte) {
             return -1;
         }
@@ -278,7 +294,8 @@ function Caisse() {
     }
     
     this.ouvrirSession = function() {
-        console.log("caisse" + this.numero + ".ouvrirSession()");            
+        logging.addLog("INFO", "Caisse.ouvrirSession", null, this.numero);
+        //console.log("caisse" + this.numero + ".ouvrirSession()");            
         if (state != STATE.paiement && state != STATE.attente_caissier) {
             return -1;      
         }
@@ -287,7 +304,8 @@ function Caisse() {
     }
     
     this.fermerSession = function() {
-        console.log("caisse" + this.numero + ".fermerSession()");            
+        logging.addLog("INFO", "Caisse.fermerSession", null, this.numero);
+        //console.log("caisse" + this.numero + ".fermerSession()");            
         if (state != STATE.session_ouverte) {
             return -1;   
         }
@@ -296,14 +314,16 @@ function Caisse() {
     }
     
     this.abandon = function() {
-        console.log("caisse" + this.numero + ".abandon()");            
+        logging.addLog("INFO", "Caisse.abandon", null, this.numero);
+        //console.log("caisse" + this.numero + ".abandon()");            
         state = STATE.en_attente;
         achats = {};
         refsInconnues = [];
     }
     
     this.payer = function(somme) {
-        console.log("caisse" + this.numero + ".payer()");            
+        logging.addLog("INFO", "Caisse.payer", somme, this.numero);
+        //console.log("caisse" + this.numero + ".payer()");            
         if (state != STATE.paiement) {
             return -1; 
         }
@@ -318,12 +338,15 @@ function Caisse() {
     
     
     this.getAchats = function() {
+        logging.addLog("INFO", "Caisse.getAchats", null, this.numero);
         return achats;   
     };
     this.getReferencesInconnues = function() {
+        logging.addLog("INFO", "Caisse.getReferencesInconnues", null, this.numero);
         return refsInconnues;   
     };
     this.getMontantTotal = function() {
+        logging.addLog("INFO", "Caisse.getMontantTotal", null, this.numero);
         var ean = Object.keys(achats);
         var aPayer = 0;
         for (var i=0; i < ean.length; i++) {
@@ -334,3 +357,35 @@ function Caisse() {
     
 }
 
+/******************************************************************************************
+ *                                      LOG FORMAT
+ *******************************************************************************************/
+function Log() {
+    // Log data
+    var logData = [];
+    var text = "";
+    // Add to the log
+    this.addLog = function(logType, methodName, values, user) {
+        var x = new Date();
+        var data = { 
+            Type : logType, 
+            MethodName : methodName,
+            Parameters : values,
+            User : user,
+            DateTime : x.getDate() + "/" + (x.getMonth() + 1) + "/" + x.getFullYear() 
+            + " " + x.getHours() + ":" + x.getMinutes() + ":" + x.getMilliseconds()
+        };
+
+        var jsonContent = JSON.stringify(data);
+        text = text + jsonContent + "\n";
+        logData.push(jsonContent);
+        console.log("------- Begin -------");
+        console.log(text);
+        console.log("------- End -------");
+    }
+
+    // Get the logs
+    this.getLogs = function() {
+        return logData;
+    }
+}
