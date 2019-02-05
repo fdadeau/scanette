@@ -70,23 +70,24 @@ function Scanette(db) {
     this.numero = 0;
     
     this.debloquer = function() {
-        logging.addLog("INFO", "Scanette.debloquer", null, this.numero);
         //console.log("scan" + this.numero + ".debloquer()"); 
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
+            logging.addLog("INFO", "Scanette.debloquer", null, this.numero, 0);
             return 0;
         }
+        logging.addLog("ERROR", "Scanette.debloquer", null, this.numero, -1);
         return -1;
     }
     
     this.scanner = function(ean13) {
-        logging.addLog("INFO", "Scanette.scanner", ean13, this.numero);
         //console.log("scan" + this.numero + ".scanner(" + ean13 +")");         
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
                 refsInconnues.push(ean13);
+                logging.addLog("ERROR", "Scanette.scanner", ean13, this.numero, -2);
                 return -2;
             }
             
@@ -95,12 +96,14 @@ function Scanette(db) {
             }
             panier[ean13].quantite++; 
             panier[ean13].lastScan = Date.now();
+            logging.addLog("INFO", "Scanette.scanner", ean13, this.numero, 0);
             return 0;
         }
         
         if (state == STATE.relecture) {
             if (!panier[ean13]) {
                 state = STATE.relecture_ko;
+                logging.addLog("ERROR", "Scanette.scanner", ean13, this.numero, -3);
                 return -3;   
             }
             if (!relu[ean13]) {
@@ -109,25 +112,29 @@ function Scanette(db) {
             relu[ean13]++;
             if (relu[ean13] > panier[ean13].quantite) {
                 state = STATE.relecture_ko;
+                logging.addLog("ERROR", "Scanette.scanner", ean13, this.numero, -3);
                 return -3;   
             }
             aRelire--;
             if (aRelire == 0) {
                 state = STATE.relecture_ok;   
             }
+            logging.addLog("INFO", "Scanette.scanner", ean13, this.numero, 0);
             return 0;
         }
          
+        logging.addLog("ERROR", "Scanette.scanner", ean13, this.numero, -1);
         return -1;
     }
     
     this.supprimer = function(ean13) {
-        logging.addLog("INFO", "Scanette.supprimer", ean13, this.numero);
         //console.log("scan" + this.numero + ".supprimer(" + ean13 + ")");
         if (state != STATE.en_courses) {
+            logging.addLog("ERROR", "Scanette.supprimer", ean13, this.numero, -1);
             return -1;
         }
         if (! panier[ean13]) {
+            logging.addLog("ERROR", "Scanette.supprimer", ean13, this.numero, -2);
             return -2;   
         }
         panier[ean13].quantite--;
@@ -173,14 +180,15 @@ function Scanette(db) {
     }
     
     this.transmission = function(c) {
-        logging.addLog("INFO", "Scanette.transmission", c, this.numero);
         //console.log("scan" + this.numero + ".transmission(caisse" + c.numero + ")");
         if (state != STATE.en_courses && state != STATE.relecture_ok) {
+            logging.addLog("ERROR", "Scanette.transmission", c, this.numero, -1);
             return -1;       
         }
         switch (c.connexion(this)) {
             case 0: 
                 this.abandon();
+                logging.addLog("INFO", "Scanette.transmission", c, this.numero, 0);
                 return 0;
             case 1: 
                 state = STATE.relecture;
@@ -189,8 +197,10 @@ function Scanette(db) {
                 }).reduce(function(acc, el) { return acc + el});
                 aRelire = nbProduitsDansPanier < MAX_A_RELIRE ? nbProduitsDansPanier : MAX_A_RELIRE;
                 relu = {};
+                logging.addLog("ERROR", "Scanette.transmission", c, this.numero, 1);
                 return 1;
         }
+        logging.addLog("ERROR", "Scanette.transmission", c, this.numero, -1);
         return -1;
     }    
     
@@ -220,13 +230,14 @@ function Caisse() {
     }
     
     this.connexion = function(scan) {
-        logging.addLog("INFO", "Caisse.connexion", scan, this.numero);
         //console.log("caisse" + this.numero + ".connexion(scan" + scan.numero + ")");    
         if (state != STATE.en_attente) {
+            logging.addLog("ERROR", "Caisse.connexion", scan, this.numero, -1);
             return -1;
         }
         
         if (scan.getState() != 1 && scan.getState() != 3) {
+            logging.addLog("ERROR", "Caisse.connexion", scan, this.numero, -1);
             return -1;
         }
         
@@ -236,6 +247,7 @@ function Caisse() {
         var panier = scan.getArticles();
 
         if (panier.length != 0 && relecture && scan.getState() == 1) {
+            logging.addLog("ERROR", "Caisse.connexion", scan, this.numero, 1);
             return 1;
         }
 
@@ -251,6 +263,7 @@ function Caisse() {
             }
             state = (refsInconnues.length > 0) ? STATE.attente_caissier : STATE.paiement;
         }
+        logging.addLog("INFO", "Caisse.connexion", scan, this.numero, 0);
         return 0;
     };
     
@@ -261,55 +274,61 @@ function Caisse() {
     };
     
     this.ajouter = function(ean) {
-        logging.addLog("INFO", "Caisse.ajouter", ean, this.numero);
         //console.log("caisse" + this.numero + ".ajouter(" + ean + ")");    
         if (state != STATE.session_ouverte) {
+            logging.addLog("ERROR", "Caisse.ajouter", ean, this.numero, -1);
             return -1;   
         }
         var art = db.getArticle(ean);
         if (art == null) {
+            logging.addLog("WARNING", "Caisse.ajouter", ean, this.numero, -2);
             return -2;
         }
         if (!achats[ean]) {
             achats[ean] = { quantite: 0, article: art };   
         }
         achats[ean].quantite++;
+        logging.addLog("INFO", "Caisse.ajouter", ean, this.numero, 0);
         return 0;
     }
     
     this.supprimer = function(ean) {
-        logging.addLog("INFO", "Caisse.supprimer", ean, this.numero);
         //console.log("caisse" + this.numero + ".supprimer(" + ean + ")");    
         if (state != STATE.session_ouverte) {
+            logging.addLog("WARNING", "Caisse.supprimer", ean, this.numero, -1);
             return -1;
         }
         if (!achats[ean]) {
+            logging.addLog("WARNING", "Caisse.supprimer", ean, this.numero, -2);
             return -2;   
         }
         achats[ean].quantite--;
         if (achats[ean].quantite == 0) {
             delete(achats[ean]);   
         }
+        logging.addLog("INFO", "Caisse.supprimer", ean, this.numero, 0);
         return 0;
     }
     
     this.ouvrirSession = function() {
-        logging.addLog("INFO", "Caisse.ouvrirSession", null, this.numero);
         //console.log("caisse" + this.numero + ".ouvrirSession()");            
         if (state != STATE.paiement && state != STATE.attente_caissier) {
+            logging.addLog("INFO", "Caisse.ouvrirSession", null, this.numero, -1);
             return -1;      
         }
         state = STATE.session_ouverte;
+        logging.addLog("INFO", "Caisse.ouvrirSession", null, this.numero, 0);
         return 0;
     }
     
     this.fermerSession = function() {
-        logging.addLog("INFO", "Caisse.fermerSession", null, this.numero);
         //console.log("caisse" + this.numero + ".fermerSession()");            
         if (state != STATE.session_ouverte) {
+            logging.addLog("INFO", "Caisse.fermerSession", null, this.numero, -1);
             return -1;   
         }
-        state = (Object.keys(achats).length == 0) ? STATE.en_attente : STATE.paiement;   
+        state = (Object.keys(achats).length == 0) ? STATE.en_attente : STATE.paiement; 
+        logging.addLog("INFO", "Caisse.fermerSession", null, this.numero, 0);  
         return 0;
     }
     
@@ -322,9 +341,9 @@ function Caisse() {
     }
     
     this.payer = function(somme) {
-        logging.addLog("INFO", "Caisse.payer", somme, this.numero);
         //console.log("caisse" + this.numero + ".payer()");            
         if (state != STATE.paiement) {
+            logging.addLog("INFO", "Caisse.payer", somme, this.numero, -1);
             return -1; 
         }
         
@@ -333,20 +352,21 @@ function Caisse() {
         if (somme >= aPayer) {
             state = STATE.en_attente;   
         }
+        logging.addLog("INFO", "Caisse.payer", somme, this.numero, 0);
         return somme - aPayer;
     }
     
     
     this.getAchats = function() {
-        logging.addLog("INFO", "Caisse.getAchats", null, this.numero);
+        logging.addLog("INFO", "Caisse.getAchats", null, this.numero, 0);
         return achats;   
     };
     this.getReferencesInconnues = function() {
-        logging.addLog("INFO", "Caisse.getReferencesInconnues", null, this.numero);
+        logging.addLog("INFO", "Caisse.getReferencesInconnues", null, this.numero, 0);
         return refsInconnues;   
     };
     this.getMontantTotal = function() {
-        logging.addLog("INFO", "Caisse.getMontantTotal", null, this.numero);
+        logging.addLog("INFO", "Caisse.getMontantTotal", null, this.numero, 0);
         var ean = Object.keys(achats);
         var aPayer = 0;
         for (var i=0; i < ean.length; i++) {
@@ -364,28 +384,43 @@ function Log() {
     // Log data
     var logData = [];
     var text = "";
+
+    var countLine = 0;
     // Add to the log
-    this.addLog = function(logType, methodName, values, user) {
+    this.addLog = function(logType, methodName, values, user, status) {
         var x = new Date();
         var data = { 
             Type : logType, 
             MethodName : methodName,
             Parameters : values,
             User : user,
+            Status : status,
             DateTime : x.getDate() + "/" + (x.getMonth() + 1) + "/" + x.getFullYear() 
-            + " " + x.getHours() + ":" + x.getMinutes() + ":" + x.getMilliseconds()
+            + " " + x.getHours() + ":" + x.getMinutes() + ":" + x.getSeconds() + ":" + x.getMilliseconds()
         };
 
         var jsonContent = JSON.stringify(data);
         text = text + jsonContent + "\n";
         logData.push(jsonContent);
-        console.log("------- Begin -------");
-        console.log(text);
-        console.log("------- End -------");
+        countLine += 1;
+
+        if (countLine == 20000) {
+            console.log("------- Begin -------");
+            console.log(text);
+            debugger;
+        }
+        //console.log("------- Begin -------");
+        //console.log(text);
+        //console.log("------- End -------");
     }
 
+    
     // Get the logs
     this.getLogs = function() {
         return logData;
+    }
+
+    this.getLogsText = function() {
+        return text;
     }
 }
