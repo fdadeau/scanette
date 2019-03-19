@@ -22,7 +22,7 @@
     
     document.addEventListener("DOMContentLoaded", init, true);
 
-    var simu = window.location.href.endsWith("?simu");
+    var simu = window.location.href.indexOf("?simu") > 0;
     
     function init(_ev) {
         
@@ -1230,7 +1230,7 @@
                             indecision: Math.random() / 40,
                             index: nbAgents
                         };
-                        console.log("[" + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
+                        console.log("[Client " + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
                         nbAgents++;
                         allAgents.push(newClient);
                     }

@@ -69,21 +69,24 @@ function Scanette(db) {
     this.numero = 0;
     
     this.debloquer = function() {
-        console.log("scan" + this.numero + ".debloquer()"); 
+        var l = { obj: "scan" + this.numero, operation: "debloquer", parameters: [] };
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
+            log(l, 0);
             return 0;
         }
+        log(l, -1);
         return -1;
     }
     
     this.scanner = function(ean13) {
-        console.log("scan" + this.numero + ".scanner(" + ean13 +")");         
+        var l = { obj: "scan" + this.numero, operation: "scanner", parameters: [ean13] };         
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
                 refsInconnues.push(ean13);
+                log(l, -2);
                 return -2;
             }
             
@@ -92,12 +95,14 @@ function Scanette(db) {
             }
             panier[ean13].quantite++; 
             panier[ean13].lastScan = Date.now();
+            log(l, 0);
             return 0;
         }
         
         if (state == STATE.relecture) {
             if (!panier[ean13]) {
                 state = STATE.relecture_ko;
+                log(l, -3);
                 return -3;   
             }
             if (!relu[ean13]) {
@@ -106,24 +111,28 @@ function Scanette(db) {
             relu[ean13]++;
             if (relu[ean13] > panier[ean13].quantite) {
                 state = STATE.relecture_ko;
+                log(l, -3);
                 return -3;   
             }
             aRelire--;
             if (aRelire == 0) {
                 state = STATE.relecture_ok;   
             }
+            log(l, 0);
             return 0;
         }
-         
+        log(l, -1);
         return -1;
     }
     
     this.supprimer = function(ean13) {
-        console.log("scan" + this.numero + ".supprimer(" + ean13 + ")");
+        var l = { obj: "scan" + this.numero, operation: "supprimer", parameters: [ean13] };         
         if (state != STATE.en_courses) {
+            log(l, -1);
             return -1;
         }
         if (! panier[ean13]) {
+            log(l, -2);
             return -2;   
         }
         panier[ean13].quantite--;
@@ -133,25 +142,30 @@ function Scanette(db) {
     }
     
     this.quantite = function(ean13) {
-        console.log("scan" + this.numero + ".quantite(" + ean13 + ")");
-        return (panier[ean13]) ? panier[ean13].quantite : 0;   
+        var l = { obj: "scan" + this.numero, operation: "quantite", parameters: [ean13] };         
+        var ret = (panier[ean13]) ? panier[ean13].quantite : 0;
+        log(l, ret);
+        return ret;
     }
     
     this.getArticles = function() {
-        console.log("scan" + this.numero + ".getArticles()");
+        var l = { obj: "scan" + this.numero, operation: "getArticles", parameters: [] };         
+        log(l, 0);
         return Object.values(panier).sort(function (a1, a2) { return a2.lastScan - a1.lastScan; }).map(function(e) { return e.article; });
     }
     
     this.getReferencesInconnues = function() {
-        console.log("scan" + this.numero + ".getReferencesInconnues()");
+        var l = { obj: "scan" + this.numero, operation: "getReferencesInconnues", parameters: [] };         
+        log(l, refsInconnues);
         return refsInconnues;   
     }
         
     this.abandon = function() {
-        console.log("scan" + this.numero + ".abandon()");
+        var l = { obj: "scan" + this.numero, operation: "abandon", parameters: [] };         
         panier = {};
         refsInconnues = [];
         state = STATE.bloquee;
+        log(l);
     }
     
     this.getState = function() {
@@ -163,13 +177,15 @@ function Scanette(db) {
     }
     
     this.transmission = function(c) {
-        console.log("scan" + this.numero + ".transmission(caisse" + c.numero + ")");
+        var l = { obj: "scan" + this.numero, operation: "transmission", parameters: ["caisse" + c.numero] };         
         if (state != STATE.en_courses && state != STATE.relecture_ok) {
+            log(l, -1);
             return -1;       
         }
         switch (c.connexion(this)) {
             case 0: 
                 this.abandon();
+                log(l, 0);
                 return 0;
             case 1: 
                 state = STATE.relecture;
@@ -178,8 +194,10 @@ function Scanette(db) {
                 }).reduce(function(acc, el) { return acc + el});
                 aRelire = nbProduitsDansPanier < MAX_A_RELIRE ? nbProduitsDansPanier : MAX_A_RELIRE;
                 relu = {};
+                log(l, 1);
                 return 1;
         }
+        log(l, -1);
         return -1;
     }    
     
@@ -208,12 +226,14 @@ function Caisse() {
     }
     
     this.connexion = function(scan) {
-        console.log("caisse" + this.numero + ".connexion(scan" + scan.numero + ")");    
+        var l = { obj: "caisse" + this.numero, operation: "connexion", parameters: ["scan" + scan.numero] };         
         if (state != STATE.en_attente) {
+            log(l, -1);
             return -1;
         }
         
         if (scan.getState() != 1 && scan.getState() != 3) {
+            log(l, -1);
             return -1;
         }
         
@@ -223,6 +243,7 @@ function Caisse() {
         var panier = scan.getArticles();
 
         if (panier.length != 0 && relecture && scan.getState() == 1) {
+            log(l, 1);
             return 1;
         }
 
@@ -238,6 +259,7 @@ function Caisse() {
             }
             state = (refsInconnues.length > 0) ? STATE.attente_caissier : STATE.paiement;
         }
+        log(l, 0);
         return 0;
     };
     
@@ -247,64 +269,76 @@ function Caisse() {
     };
     
     this.ajouter = function(ean) {
-        console.log("caisse" + this.numero + ".ajouter(" + ean + ")");    
+        var l = { obj: "caisse" + this.numero, operation: "ajouter", parameters: [ean] };         
         if (state != STATE.session_ouverte) {
+            log(l, -1);
             return -1;   
         }
         var art = db.getArticle(ean);
         if (art == null) {
+            log(l, -2);
             return -2;
         }
         if (!achats[ean]) {
             achats[ean] = { quantite: 0, article: art };   
         }
         achats[ean].quantite++;
+        log(l, 0);
         return 0;
     }
     
     this.supprimer = function(ean) {
-        console.log("caisse" + this.numero + ".supprimer(" + ean + ")");    
+        var l = { obj: "caisse" + this.numero, operation: "supprimer", parameters: [ean] };         
         if (state != STATE.session_ouverte) {
+            log(l, -1);
             return -1;
         }
         if (!achats[ean]) {
+            log(l, -2);
             return -2;   
         }
         achats[ean].quantite--;
         if (achats[ean].quantite == 0) {
             delete(achats[ean]);   
         }
+        log(l, 0);
         return 0;
     }
     
     this.ouvrirSession = function() {
-        console.log("caisse" + this.numero + ".ouvrirSession()");            
+        var l = { obj: "caisse" + this.numero, operation: "ouvrirSession", parameters: [] };         
         if (state != STATE.paiement && state != STATE.attente_caissier) {
+            log(l, -1);
             return -1;      
         }
         state = STATE.session_ouverte;
+        log(l, 0);
         return 0;
     }
     
     this.fermerSession = function() {
-        console.log("caisse" + this.numero + ".fermerSession()");            
+        var l = { obj: "caisse" + this.numero, operation: "fermerSession", parameters: [] };         
         if (state != STATE.session_ouverte) {
+            log(l, -1);
             return -1;   
         }
         state = (Object.keys(achats).length == 0) ? STATE.en_attente : STATE.paiement;   
+        log(l, 0);
         return 0;
     }
     
     this.abandon = function() {
-        console.log("caisse" + this.numero + ".abandon()");            
+        var l = { obj: "caisse" + this.numero, operation: "abandon", parameters: [] };         
         state = STATE.en_attente;
         achats = {};
         refsInconnues = [];
+        log(l);
     }
     
     this.payer = function(somme) {
-        console.log("caisse" + this.numero + ".payer()");            
+        var l = { obj: "caisse" + this.numero, operation: "payer", parameters: [somme] };         
         if (state != STATE.paiement) {
+            log(l, -1);
             return -1; 
         }
         
@@ -313,6 +347,7 @@ function Caisse() {
         if (somme >= aPayer) {
             state = STATE.en_attente;   
         }
+        log(l, somme - aPayer);
         return somme - aPayer;
     }
     
@@ -332,5 +367,29 @@ function Caisse() {
         return aPayer.toFixed(2);    
     }
     
+}
+
+
+var forWho = null;
+if (window.location.href.indexOf("for=lydie") > 0) forWho = "lydie";
+if (window.location.href.indexOf("for=vahana") > 0) forWho = "vahana";
+if (window.location.href.indexOf("for=fred") > 0) forWho = "fred";
+function log(l, res) {
+    if (res == undefined) {
+        res = "?";   
+    }
+    switch (forWho) {
+        case "lydie":
+            console.log(l.obj + ", " + l.operation + ", [" + l.parameters.join(";") + "], " + JSON.stringify(res));
+            break;
+        case "fred": 
+            l.result = res;
+            console.log(JSON.stringify(l));
+            break;
+        case "vahana": 
+            break;
+        default: 
+            console.log(l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));
+    }
 }
 
