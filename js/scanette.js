@@ -378,9 +378,10 @@ function log(l, res) {
     if (res == undefined) {
         res = "?";   
     }
+    l.timestamp = Date.now();
     switch (forWho) {
         case "lydie":
-            console.log(l.obj + ", " + l.operation + ", [" + l.parameters.join(";") + "], " + JSON.stringify(res));
+            console.log(l.obj + ", " + l.operation + ", [" + l.parameters.join(",") + "], " + JSON.stringify(res) + ", " + l.timestamp + ";");
             break;
         case "fred": 
             l.result = res;
@@ -389,7 +390,7 @@ function log(l, res) {
         case "vahana": 
             break;
         default: 
-            console.log(l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));
+            console.log(l.timestamp + ": " + l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));
     }
 }
 
