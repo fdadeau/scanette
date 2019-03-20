@@ -69,7 +69,7 @@ function Scanette(db) {
     this.numero = 0;
     
     this.debloquer = function() {
-        var l = { obj: "scan" + this.numero, operation: "debloquer", parameters: [] };
+        var l = { obj: "scan" + this.numero, operation: "debloquer", parameters: [], client: this.user };
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
@@ -388,6 +388,7 @@ function log(l, res) {
             console.log(JSON.stringify(l));
             break;
         case "vahana": 
+            
             break;
         default: 
             console.log(l.timestamp + ": " + l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));

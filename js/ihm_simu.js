@@ -1230,6 +1230,7 @@
                             indecision: Math.random() / 40,
                             index: nbAgents
                         };
+                        newClient['obj'].scanette.current.user = nbAgents;
                         console.log("[Client " + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
                         nbAgents++;
                         allAgents.push(newClient);
