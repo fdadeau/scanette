@@ -1,4 +1,6 @@
 
+var logID = 0;
+
 /******************************************************************************************
  *                                      ARTICLE_DB 
  *******************************************************************************************/
@@ -69,7 +71,7 @@ function Scanette(db) {
     this.numero = 0;
     
     this.debloquer = function() {
-        var l = { obj: "scan" + this.numero, operation: "debloquer", parameters: [], client: this.user };
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "debloquer", parameters: [], client: this.user };
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
@@ -81,7 +83,7 @@ function Scanette(db) {
     }
     
     this.scanner = function(ean13) {
-        var l = { obj: "scan" + this.numero, operation: "scanner", parameters: [ean13] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "scanner", parameters: [ean13] };         
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
@@ -126,7 +128,7 @@ function Scanette(db) {
     }
     
     this.supprimer = function(ean13) {
-        var l = { obj: "scan" + this.numero, operation: "supprimer", parameters: [ean13] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "supprimer", parameters: [ean13] };         
         if (state != STATE.en_courses) {
             log(l, -1);
             return -1;
@@ -142,26 +144,26 @@ function Scanette(db) {
     }
     
     this.quantite = function(ean13) {
-        var l = { obj: "scan" + this.numero, operation: "quantite", parameters: [ean13] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "quantite", parameters: [ean13] };         
         var ret = (panier[ean13]) ? panier[ean13].quantite : 0;
         log(l, ret);
         return ret;
     }
     
     this.getArticles = function() {
-        var l = { obj: "scan" + this.numero, operation: "getArticles", parameters: [] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "getArticles", parameters: [] };         
         log(l, 0);
         return Object.values(panier).sort(function (a1, a2) { return a2.lastScan - a1.lastScan; }).map(function(e) { return e.article; });
     }
     
     this.getReferencesInconnues = function() {
-        var l = { obj: "scan" + this.numero, operation: "getReferencesInconnues", parameters: [] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "getReferencesInconnues", parameters: [] };         
         log(l, refsInconnues);
         return refsInconnues;   
     }
         
     this.abandon = function() {
-        var l = { obj: "scan" + this.numero, operation: "abandon", parameters: [] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "abandon", parameters: [] };         
         panier = {};
         refsInconnues = [];
         state = STATE.bloquee;
@@ -177,7 +179,7 @@ function Scanette(db) {
     }
     
     this.transmission = function(c) {
-        var l = { obj: "scan" + this.numero, operation: "transmission", parameters: ["caisse" + c.numero] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "transmission", parameters: ["caisse" + c.numero] };         
         if (state != STATE.en_courses && state != STATE.relecture_ok) {
             log(l, -1);
             return -1;       
@@ -226,7 +228,7 @@ function Caisse() {
     }
     
     this.connexion = function(scan) {
-        var l = { obj: "caisse" + this.numero, operation: "connexion", parameters: ["scan" + scan.numero] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "connexion", parameters: ["scan" + scan.numero] };         
         if (state != STATE.en_attente) {
             log(l, -1);
             return -1;
@@ -269,7 +271,7 @@ function Caisse() {
     };
     
     this.ajouter = function(ean) {
-        var l = { obj: "caisse" + this.numero, operation: "ajouter", parameters: [ean] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "ajouter", parameters: [ean] };         
         if (state != STATE.session_ouverte) {
             log(l, -1);
             return -1;   
@@ -288,7 +290,7 @@ function Caisse() {
     }
     
     this.supprimer = function(ean) {
-        var l = { obj: "caisse" + this.numero, operation: "supprimer", parameters: [ean] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "supprimer", parameters: [ean] };         
         if (state != STATE.session_ouverte) {
             log(l, -1);
             return -1;
@@ -306,7 +308,7 @@ function Caisse() {
     }
     
     this.ouvrirSession = function() {
-        var l = { obj: "caisse" + this.numero, operation: "ouvrirSession", parameters: [] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "ouvrirSession", parameters: [] };         
         if (state != STATE.paiement && state != STATE.attente_caissier) {
             log(l, -1);
             return -1;      
@@ -317,7 +319,7 @@ function Caisse() {
     }
     
     this.fermerSession = function() {
-        var l = { obj: "caisse" + this.numero, operation: "fermerSession", parameters: [] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "fermerSession", parameters: [] };         
         if (state != STATE.session_ouverte) {
             log(l, -1);
             return -1;   
@@ -328,7 +330,7 @@ function Caisse() {
     }
     
     this.abandon = function() {
-        var l = { obj: "caisse" + this.numero, operation: "abandon", parameters: [] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "abandon", parameters: [] };         
         state = STATE.en_attente;
         achats = {};
         refsInconnues = [];
@@ -336,7 +338,7 @@ function Caisse() {
     }
     
     this.payer = function(somme) {
-        var l = { obj: "caisse" + this.numero, operation: "payer", parameters: [somme] };         
+        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "payer", parameters: [somme] };         
         if (state != STATE.paiement) {
             log(l, -1);
             return -1; 
@@ -378,10 +380,10 @@ function log(l, res) {
     if (res == undefined) {
         res = "?";   
     }
-    l.timestamp = Date.now();
+    l.timestamp = l.timestamp || Date.now();
     switch (forWho) {
         case "lydie":
-            console.log(l.obj + ", " + l.operation + ", [" + l.parameters.join(",") + "], " + JSON.stringify(res) + ", " + l.timestamp + ";");
+            console.log(l.id + ", " + l.obj + ", " + l.operation + ", [" + l.parameters.join(",") + "], " + JSON.stringify(res) + ", " + l.timestamp + ";");
             break;
         case "fred": 
             l.result = res;
@@ -391,7 +393,7 @@ function log(l, res) {
             
             break;
         default: 
-            console.log(l.timestamp + ": " + l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));
+            console.log(l.id + ", " + l.timestamp + ": " + l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));
     }
 }
 
