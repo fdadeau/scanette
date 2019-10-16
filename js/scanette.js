@@ -1,4 +1,6 @@
 
+var depth = 0;
+
 var logID = 0;
 
 /******************************************************************************************
@@ -70,25 +72,32 @@ function Scanette(db) {
     
     this.numero = 0;
     
+    this.client = null;
+    
     this.debloquer = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "debloquer", parameters: [], client: this.user };
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "debloquer", parameters: [] };
         if (state == STATE.bloquee) {
             state = STATE.en_courses;
             panier = {};
             log(l, 0);
+            depth--;
             return 0;
         }
         log(l, -1);
+        depth--;
         return -1;
     }
     
     this.scanner = function(ean13) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "scanner", parameters: [ean13] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "scanner", parameters: [ean13] };         
         if (state == STATE.en_courses) {
             var art = db.getArticle(ean13);
             if (! art) {
                 refsInconnues.push(ean13);
                 log(l, -2);
+                depth--;
                 return -2;
             }
             
@@ -98,6 +107,7 @@ function Scanette(db) {
             panier[ean13].quantite++; 
             panier[ean13].lastScan = Date.now();
             log(l, 0);
+            depth--;
             return 0;
         }
         
@@ -105,6 +115,7 @@ function Scanette(db) {
             if (!panier[ean13]) {
                 state = STATE.relecture_ko;
                 log(l, -3);
+                depth--;
                 return -3;   
             }
             if (!relu[ean13]) {
@@ -114,6 +125,7 @@ function Scanette(db) {
             if (relu[ean13] > panier[ean13].quantite) {
                 state = STATE.relecture_ko;
                 log(l, -3);
+                depth--;
                 return -3;   
             }
             aRelire--;
@@ -121,53 +133,68 @@ function Scanette(db) {
                 state = STATE.relecture_ok;   
             }
             log(l, 0);
+            depth--;
             return 0;
         }
         log(l, -1);
+        depth--;
         return -1;
     }
     
     this.supprimer = function(ean13) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "supprimer", parameters: [ean13] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "supprimer", parameters: [ean13] };         
         if (state != STATE.en_courses) {
             log(l, -1);
+            depth--;
             return -1;
         }
         if (! panier[ean13]) {
             log(l, -2);
+            depth--;
             return -2;   
         }
         panier[ean13].quantite--;
         if (panier[ean13].quantite == 0) {
             delete(panier[ean13]);   
         }
+        depth--;
+        return 0;
     }
     
     this.quantite = function(ean13) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "quantite", parameters: [ean13] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "quantite", parameters: [ean13] };         
         var ret = (panier[ean13]) ? panier[ean13].quantite : 0;
         log(l, ret);
+        depth--;
         return ret;
     }
     
     this.getArticles = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "getArticles", parameters: [] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "getArticles", parameters: [] };         
         log(l, 0);
+        depth--;
         return Object.values(panier).sort(function (a1, a2) { return a2.lastScan - a1.lastScan; }).map(function(e) { return e.article; });
     }
     
     this.getReferencesInconnues = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "getReferencesInconnues", parameters: [] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "getReferencesInconnues", parameters: [] };         
         log(l, refsInconnues);
+        depth--;
         return refsInconnues;   
     }
         
     this.abandon = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "abandon", parameters: [] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "abandon", parameters: [] };         
         panier = {};
         refsInconnues = [];
         state = STATE.bloquee;
         log(l);
+        depth--;
     }
     
     this.getState = function() {
@@ -179,15 +206,18 @@ function Scanette(db) {
     }
     
     this.transmission = function(c) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "scan" + this.numero, operation: "transmission", parameters: ["caisse" + c.numero] };         
+        depth++;
+        var l = { client: this.client, obj: "scan" + this.numero, operation: "transmission", parameters: ["caisse" + c.numero] };         
         if (state != STATE.en_courses && state != STATE.relecture_ok) {
             log(l, -1);
+            depth--;
             return -1;       
         }
         switch (c.connexion(this)) {
             case 0: 
                 this.abandon();
                 log(l, 0);
+                depth--;
                 return 0;
             case 1: 
                 state = STATE.relecture;
@@ -197,9 +227,11 @@ function Scanette(db) {
                 aRelire = nbProduitsDansPanier < MAX_A_RELIRE ? nbProduitsDansPanier : MAX_A_RELIRE;
                 relu = {};
                 log(l, 1);
+                depth--;
                 return 1;
         }
         log(l, -1);
+        depth--;
         return -1;
     }    
     
@@ -228,14 +260,17 @@ function Caisse() {
     }
     
     this.connexion = function(scan) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "connexion", parameters: ["scan" + scan.numero] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "connexion", parameters: ["scan" + scan.numero] };         
         if (state != STATE.en_attente) {
             log(l, -1);
+            depth--;
             return -1;
         }
         
         if (scan.getState() != 1 && scan.getState() != 3) {
             log(l, -1);
+            depth--;
             return -1;
         }
         
@@ -246,6 +281,7 @@ function Caisse() {
 
         if (panier.length != 0 && relecture && scan.getState() == 1) {
             log(l, 1);
+            depth--;
             return 1;
         }
 
@@ -262,6 +298,7 @@ function Caisse() {
             state = (refsInconnues.length > 0) ? STATE.attente_caissier : STATE.paiement;
         }
         log(l, 0);
+        depth--;
         return 0;
     };
     
@@ -271,14 +308,17 @@ function Caisse() {
     };
     
     this.ajouter = function(ean) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "ajouter", parameters: [ean] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "ajouter", parameters: [ean] };         
         if (state != STATE.session_ouverte) {
             log(l, -1);
+            depth--;
             return -1;   
         }
         var art = db.getArticle(ean);
         if (art == null) {
             log(l, -2);
+            depth--;
             return -2;
         }
         if (!achats[ean]) {
@@ -286,17 +326,21 @@ function Caisse() {
         }
         achats[ean].quantite++;
         log(l, 0);
+        depth--;
         return 0;
     }
     
     this.supprimer = function(ean) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "supprimer", parameters: [ean] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "supprimer", parameters: [ean] };         
         if (state != STATE.session_ouverte) {
             log(l, -1);
+            depth--;
             return -1;
         }
         if (!achats[ean]) {
             log(l, -2);
+            depth--;
             return -2;   
         }
         achats[ean].quantite--;
@@ -304,43 +348,54 @@ function Caisse() {
             delete(achats[ean]);   
         }
         log(l, 0);
+        depth--;
         return 0;
     }
     
     this.ouvrirSession = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "ouvrirSession", parameters: [] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "ouvrirSession", parameters: [] };         
         if (state != STATE.paiement && state != STATE.attente_caissier) {
             log(l, -1);
+            depth--;
             return -1;      
         }
         state = STATE.session_ouverte;
         log(l, 0);
+        depth--;
         return 0;
     }
     
     this.fermerSession = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "fermerSession", parameters: [] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "fermerSession", parameters: [] };         
         if (state != STATE.session_ouverte) {
             log(l, -1);
+            depth--;
             return -1;   
         }
         state = (Object.keys(achats).length == 0) ? STATE.en_attente : STATE.paiement;   
         log(l, 0);
+        depth--;
         return 0;
     }
     
     this.abandon = function() {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "abandon", parameters: [] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "abandon", parameters: [] };         
         state = STATE.en_attente;
         achats = {};
         refsInconnues = [];
         log(l);
+        depth--;
     }
     
     this.payer = function(somme) {
-        var l = { id: ++logID, timestamp: Date.now(), obj: "caisse" + this.numero, operation: "payer", parameters: [somme] };         
+        depth++;
+        var l = { client: this.client, obj: "caisse" + this.numero, operation: "payer", parameters: [somme] };         
         if (state != STATE.paiement) {
             log(l, -1);
+            depth--;
             return -1; 
         }
         
@@ -350,6 +405,7 @@ function Caisse() {
             state = STATE.en_attente;   
         }
         log(l, somme - aPayer);
+        depth--;
         return somme - aPayer;
     }
     
@@ -377,23 +433,30 @@ if (window.location.href.indexOf("for=lydie") > 0) forWho = "lydie";
 if (window.location.href.indexOf("for=vahana") > 0) forWho = "vahana";
 if (window.location.href.indexOf("for=fred") > 0) forWho = "fred";
 function log(l, res) {
+    if (depth > 1) {
+        return;   
+    }
+    logID++;
     if (res == undefined) {
         res = "?";   
     }
     l.timestamp = l.timestamp || Date.now();
     switch (forWho) {
         case "lydie":
-            console.log(l.id + ", " + l.obj + ", " + l.operation + ", [" + l.parameters.join(",") + "], " + JSON.stringify(res) + ", " + l.timestamp + ";");
+            console.log(logID + ", " + Date.now() + ", " + l.client + ", " + l.obj + ", " + l.operation + ", [" + l.parameters.join(",") + "], " + JSON.stringify(res) + ";");
             break;
         case "fred": 
             l.result = res;
+            l.timestemp = Date.now();
+            l.id = logID;
             console.log(JSON.stringify(l));
             break;
         case "vahana": 
             
             break;
         default: 
-            console.log(l.id + ", " + l.timestamp + ": " + l.obj + "." + l.operation + "(" + l.parameters.join(",") + ") -> " + JSON.stringify(res));
+            console.log(logID + ", " + Date.now() + ", client" + l.client + ", " + l.obj + ", " + l.operation + ", [" + l.parameters.join(",") + "], " + res);
+            break;
     }
 }
 

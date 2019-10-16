@@ -85,7 +85,9 @@
                                 return;
                             case 1:     // en courses
                                 var htmlPanier = "";
+                                depth++;
                                 var articlesInScanette = this.current.getArticles();
+                                depth--;
                                 var nb = 0, tot = 0;
                                 for (var i=0; i < articlesInScanette.length; i++) {
                                     var art = articlesInScanette[i];
@@ -231,6 +233,7 @@
                         else {
                             ca.client = this.holder;
                         }
+                        ca.caisse.client = ca.client.id;
                         this.reposer(); 
                         if (ca.client == currentSelection || currentSelection == caissiers[ca.index] || selectedCaisse == ca) {
                             ca.afficher();
@@ -265,11 +268,13 @@
             };
             this.prendre = function(cli) {
                 this.holder = cli;
+                this.current.client = cli.id;
                 this.current.debloquer();
                 this.afficher();
             };
             this.reposer = function() {
                 this.current.abandon();
+                this.current.client = null;
                 this.holder.scanette = null;
                 this.holder = null;
                 document.getElementById("playground").classList.remove("withScanette");
@@ -412,6 +417,11 @@
         var nbCli = 0;
         function Client(scan) {
             
+            this.id = nbCli;
+            scan.current.client = this.id;
+            
+            nbCli++;
+            
             var caddie = [];
             this.getCaddie = function() {
                 return caddie;   
@@ -478,7 +488,7 @@
             }
             
             var divSprite = document.createElement("div");
-            divSprite.id = "client" + (nbCli++);
+            divSprite.id = "client" + this.id;
             divSprite.className = "client sprite client" + (Math.random() * 7 | 0) + " animation arretB";
             divSprite.addEventListener("click", function(e) {
                 this.selectionner();
@@ -1230,7 +1240,7 @@
                             indecision: Math.random() / 40,
                             index: nbAgents
                         };
-                        newClient['obj'].scanette.current.user = nbAgents;
+                        newClient['obj'].scanette.current.client = nbAgents;
                         console.log("[Client " + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
                         nbAgents++;
                         allAgents.push(newClient);
@@ -1430,6 +1440,7 @@
                                 if (cl.scanette.transferer(ca) >= 0) {
                                     cl.caisse = ca;
                                     ca.client = cl;
+                                    ca.caisse.client = cl.id;
                                     if (ca == selectedCaisse) {
                                         ca.afficher();   
                                     }
