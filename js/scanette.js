@@ -432,11 +432,22 @@ var forWho = null;
 if (window.location.href.indexOf("for=lydie") > 0) forWho = "lydie";
 if (window.location.href.indexOf("for=vahana") > 0) forWho = "vahana";
 if (window.location.href.indexOf("for=fred") > 0) forWho = "fred";
+
+var maxSteps = null;
+window.location.href.split("&").forEach(function(e) {
+    if (e.startsWith("steps=")) {
+        maxSteps = Number(e.substring(6));
+    }
+});
+
 function log(l, res) {
     if (depth > 1) {
         return;   
     }
     logID++;
+    if (maxSteps != null && maxSteps < logID) {
+        return;
+    }
     if (res == undefined) {
         res = "?";   
     }
