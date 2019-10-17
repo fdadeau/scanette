@@ -447,7 +447,6 @@ function log(l, res) {
             break;
         case "fred": 
             l.result = res;
-            l.timestemp = Date.now();
             l.id = logID;
             console.log(JSON.stringify(l));
             break;
