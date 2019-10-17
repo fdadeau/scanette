@@ -186,6 +186,9 @@ function Scanette(db) {
         depth--;
         return refsInconnues;   
     }
+    this.getReferencesInconnuesSilent = function() {
+        return refsInconnues;
+    }
         
     this.abandon = function() {
         depth++;

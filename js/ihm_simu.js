@@ -1350,7 +1350,8 @@
                                         }
                                         else {
                                             var eanProd = agentCaissier.produitsARelire.pop();
-                                            if (agentCaissier.scanette.current.getReferencesInconnues().indexOf(eanProd) < 0) {
+                                            // évite de scanner les produits qui ne sont pas reconnus
+                                            if (agentCaissier.scanette.current.getReferencesInconnuesSilent().indexOf(eanProd) < 0) {
                                                 agentCaissier.scanette.current.scanner(eanProd);
                                                 console.log("[Caissier " + agentCaissier.index + "] relecture d'un produit de code " + eanProd); 
                                                 if (currentSelection == agentCaissier) {
@@ -1434,7 +1435,7 @@
                         }
                         
                         // caisse libre --> s'y rend
-                        console.log("[Client " + agent.index + "] Va à la caisse");
+                        console.log("[Client " + agent.index + "] va à la caisse");
                         deplacerClientVers(agent.obj, caissesLibres, 0, function(cl, ca) {
                             if (ca.client == null) {
                                 if (cl.scanette.transferer(ca) >= 0) {
