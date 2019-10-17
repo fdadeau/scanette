@@ -439,14 +439,18 @@ window.location.href.split("&").forEach(function(e) {
         maxSteps = Number(e.substring(6));
     }
 });
+var maxClient=0;
 
 function log(l, res) {
     if (depth > 1) {
         return;   
     }
     logID++;
-    if (maxSteps != null && maxSteps < logID) {
+    if (maxSteps != null && maxSteps < logID && l.client > maxClient) {
         return;
+    }
+    if (maxClient < l.client) {
+        maxClient = l.client;   
     }
     if (res == undefined) {
         res = "?";   
