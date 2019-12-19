@@ -510,6 +510,13 @@
             this.deplacerVers = function(newX, newY, after) {
                 // annule le deplcement précedent
                 clearTimeout(dest.to);    
+                if (document.location.href.indexOf("noanimation") > 0) {
+                    x = newX;
+                    y = newY;
+                    this.update();
+                    after();
+                    return;
+                }
                 dest.x = newX;
                 dest.y = newY;
                 dest.speed = depl;
@@ -1223,16 +1230,18 @@
                     }
                 });
                 
+                var TIMEOUT = (document.location.href.indexOf("noanimation") > 0) ? 10 : 1000;
+                
                 function loop() {
                     
                     if (pause) {
-                        setTimeout(loop, 1000); 
+                        setTimeout(loop, TIMEOUT); 
                         return;                        
                     }
                     
                     var scanetteLibre = document.querySelector(".icScanette:not(.prise)");
                     
-                    if (scanetteLibre != null) {
+                    if (scanetteLibre != null && maxSteps != null && logID < maxSteps) {
                         var newClient = { 
                             obj: ajouterClient(scanetteLibre.dataset.index), 
                             manifest: calculeListeCourses(Math.random() * 10 | 0 + 5), 
@@ -1451,10 +1460,10 @@
                     } // fin si déplacement
                     
                     if (!pause) {
-                        setTimeout(loop, 1000);
+                        setTimeout(loop, TIMEOUT);
                     }
                 }
-                setTimeout(loop, 1000);
+                setTimeout(loop, TIMEOUT);
                 
                 
                 /*** Fonctions utilitaires pour la simulation ***/
