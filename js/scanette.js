@@ -158,6 +158,7 @@ function Scanette(db) {
         if (panier[ean13].quantite == 0) {
             delete(panier[ean13]);   
         }
+        log(l, 0);
         depth--;
         return 0;
     }
@@ -420,6 +421,7 @@ function Caisse() {
         return refsInconnues;   
     };
     this.getMontantTotal = function() {
+        //console.log("Montant total achats caisse " + this.numero + " : " + JSON.stringify(achats));
         var ean = Object.keys(achats);
         var aPayer = 0;
         for (var i=0; i < ean.length; i++) {

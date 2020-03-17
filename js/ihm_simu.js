@@ -1434,6 +1434,7 @@
                                     var produit = ray.articles.pickOne();
                                     c.ajouter(produit.ean);
                                     c.scanette.current.scanner(produit.ean);
+                                    console.log("[Client " + ag.index + "] Scanné produit : " + produit.libelle);
                                     if (c == currentSelection) {
                                         c.scanette.afficher();   
                                     }
