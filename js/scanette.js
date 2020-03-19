@@ -438,7 +438,7 @@ if (window.location.href.indexOf("for=lydie") > 0) forWho = "lydie";
 if (window.location.href.indexOf("for=vahana") > 0) forWho = "vahana";
 if (window.location.href.indexOf("for=fred") > 0) forWho = "fred";
 
-var maxSteps = null;
+var maxSteps = Infinity;
 window.location.href.split("&").forEach(function(e) {
     if (e.startsWith("steps=")) {
         maxSteps = Number(e.substring(6));
