@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Etude de cas - scanette de supermarché</title>
+    <style>
+body {
+    font-family: Helevetica, Palatino, Verdana;
+    font-size: 16px;
+    background-color: #D0D0D0;
+    line-height: 1.5;
+}
+
+#bcPage {
+    background-color: #FFF;
+    width: 80%;
+    margin: 0px auto;
+    padding: 15px;
+    border: solid 2px #000;
+}
+
+.figure {
+    display: block;
+    margin: 10px auto;
+    width: 80%;
+    max-width: 800px;
+}
+
+h1 {
+    margin: -15px -15px 10px -15px;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+    background-color: #7777FF;
+    border-bottom: solid 2px #000;
+    font-weight: bold;
+    color: #FFF;
+    text-shadow: 2px 2px 0.2em black;
+}
+
+h2 {
+	color: #333;
+	font-weight: bold;
+	font-size: 18px;
+	margin: 30px 0px 20px 0px;
+	background: #F7E0A5;
+	padding: 4px;
+	clear: both;
+	border-left: 2em solid #F7C749;
+	}
+h3 {
+    margin-top: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 2px solid #FFCC33;
+}
+
+p {
+    clear: both;
+    text-align: justify;
+}
+
+li {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+pre {
+    font-size: 14px;
+}
+
+code {
+    font-size: 95%;
+    color: #BB0000;
+    font-weight: bold;
+}
+
+a:link,
+a:visited,
+label {
+    text-decoration: none;
+    color: #0000FF;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0000FF;
+}
+
+a[href^="http"]:hover::after {
+    content: " - " attr(href);
+}
+
+.important {
+    color: #BB0000;
+    border: solid 1px #BB0000;
+    margin: 10px 20px;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.grammaire {
+    width: 420px;
+    margin-bottom: 10px;
+}
+
+.grammaire td:first-of-type {
+    text-align: right;
+}
+
+.grammaire td:nth-of-type(2) {
+    text-align: center;
+}
+
+.terminal {
+    background-color: black;
+    font-family: courier new;
+    font-size: 14px;
+    color: lightgreen;
+    padding: 5px;
+    text-align: left;
+    width: 60%;
+}
+
+input[type=checkbox] {
+    display: none;
+}
+
+label {
+    width: auto;
+    display: block;
+}
+
+label:hover {
+    cursor: pointer;
+}
+
+input[type=checkbox] + p.terminal {
+    display: none;
+}
+
+input[type=checkbox]:checked + p.terminal {
+    display: block;
+}
+
+.codesource {
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 1em auto;
+    border: solid 1px #000;
+    padding: 10px;
+    font-size: 90%;
+    max-width: 800px;
+}
+
+.codesource b {
+    color: blue;
+}
+
+.comments {
+    color: green;
+}
+
+    </style>
+</head>
+
+<body>
+
+    <div id="bcPage">
+
+        <h1>Etude de cas - Système de scanettes</h1>
+
+        <p>On propose d'étudier un système de <em>scanettes</em> qui permet aux clients des supermarchés de scanner eux-mêmes leurs achats au fur et à mesure de leur visite, et leur permet de passer dans des caisses spécialisées pour le paiement. </p>
+        
+        <img src="images/scan_achat.jpg" class="figure" alt="Scan d'un produit" style="max-width: 600px;">
+
+        <h2>Description du système considéré</h2>
+
+        
+        <p style="clear: none;">        
+            <img src="images/rack_scanettes.jpg" alt="Rack de scanettes" style="width: 20%; float: right; margin-left: 10px;">
+Le processus est le suivant. Le client s'authentifie auprès du système de distribution des scanettes, en donnant son numéro de client, scanné via sa carte de fidélité. Si le numéro est correct, le système lui délivre alors une scannette qui est prête pour enregistrer ses achats. A chaque produit pris dans un rayon par le client, ce dernier doit systématiquement scanner le code barre, ce qui enregistre l'article dans la scannette. Celle-ci affiche toujours sur son écran de contrôle un récapitulatif des produits scannés sous forme compacte, c'est-à-dire le libellé du produit et la quantité correspondante. En cas d'erreur, il est possible de retirer des produits, en appuyant sur la touche "supprimer" et en scannant le produit à supprimer. La suppression, tout comme l'ajout, se fait donc un produit à la fois. Une fois ses courses terminées, le client se présente à une caisse de paiement automatique dédiée au traitement des scanettes. </p>
+
+        <p style="clear: none;">
+            <img src="images/caisse.png" alt="Caisses spéciales pour les scanettes" style="width: 20%; float: left; margin-right: 10px;">
+
+            Pour valider le traitement les achats, le client scanne alors un code-barre spécial affiché sur la caisse. Ceci déclenche le transfert des informations à la caisse sélectionnée. Si un produit scanné n'a pas été reconnu durant les courses, l'information est retenue dans la scanette et, au moment de la validation des achats, un caissier sera sollicité pour scanner lui-même directement sur la caisse les produits non reconnus. Similairement, il est possible que les codes-barres soient sur une surface trop déformée pour être scannée. La caisse demandera donc systématiquement au client s'il a pu scanner tous ses articles. Si ce n'est pas le cas, un caissier saisira manuellement les codes-barres qui n'ont pas pu être scannés. </p>
+
+        <img src="images/caissiers.jpg" alt="Des caissier.e.s ravi.e.s" style="width: 20%; float: right; margin-left: 10px;">
+
+        <p style="clear: none;">Aléatoirement, il est possible qu'une vérification du panier soit réalisée pour "tester" l'honnêteté du client. Un caissier est alors amené à faire la vérification. Ce dernier re-scannera alors, à l'aide de la scanette, un certain nombre de produits (maximum une douzaine) issus du caddie du client. Si cette vérification montre qu'un produit du caddie n'a pas été scanné, alors tout le caddie sera rescanné par le caissier sur une caisse dédiée, ce qui annulera la transaction en cours avec la caisse automatique. Si la vérification
+        n'a décelé aucune erreur, le caissier scannera à nouveau le code barre de la caisse pour valider la phase de vérification. </p>
+
+        <p style="clear: none;">Une fois les achats validés, le client procède au paiement. Il choisit son mode de paiement (carte bleue ou espèces) et réalise classiquement son paiement : soit il insère sa carte dans le lecteur et tape son code, soit il insère la somme en numéraire dans la caisse et celle-ci lui rendra éventuellement la monnaie, si c'est nécessaire. Une fois ce processus terminé, il peut s'en aller avec ses achats.</p>
+
+        
+
+    </div>
+
+</body>
+
+</html>

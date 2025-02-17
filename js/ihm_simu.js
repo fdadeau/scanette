@@ -1250,7 +1250,7 @@
                             index: nbAgents
                         };
                         newClient['obj'].scanette.current.client = nbAgents;
-                        console.log("[Client " + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
+                        // // // console.log("[Client " + nbAgents + "] arrivée dans le magasin (" + newClient.manifest.length + " produits à acheter)");
                         nbAgents++;
                         allAgents.push(newClient);
                     }
@@ -1271,30 +1271,30 @@
                             var prod = agent.obj.removeFromCaddie(agent.obj.getCaddie().length * Math.random() | 0);
                             // suppression sur la scanette
                             agent.obj.scanette.current.supprimer(prod.ean);
-                            console.log("[Client " + agent.index + "] Retire un produit " + prod.ean);   
+                            //// // console.log("[Client " + agent.index + "] Retire un produit " + prod.ean);   
                         }
                         
                         
                         // manifeste pas vide --> va chercher le produit suivant
                         if (agent.manifest.length > 0) {
                             var produit = agent.manifest.pop();
-                            console.log("[Client " + agent.index + "] Deplacement vers rayon " + rayons[produit.rayon].libelle);
+                            //// // console.log("[Client " + agent.index + "] Deplacement vers rayon " + rayons[produit.rayon].libelle);
                             deplacerClientVers(agent.obj, rayons, produit.rayon, function(ag, produit) {
                                 var c = ag.obj;
                                 c.ajouter(produit.ean);   
-                                console.log("[Client " + ag.index + "] Ajouté au caddie : " + produit.libelle);
+                                //// // console.log("[Client " + ag.index + "] Ajouté au caddie : " + produit.libelle);
                                 if (Math.random() > ag.etourderie) {
                                     var r = c.scanette.current.scanner(produit.ean);
-                                    console.log("[Client " + ag.index + "] Scanné produit : " + produit.libelle);
+                                    //// // console.log("[Client " + ag.index + "] Scanné produit : " + produit.libelle);
                                     if (r != 0) {
-                                        console.log("[Client " + ag.index + "] ... tiens, ce produit n'est pas reconnu...");
+                                        //// // console.log("[Client " + ag.index + "] ... tiens, ce produit n'est pas reconnu...");
                                     }
                                     if (c == currentSelection) {
                                         c.scanette.afficher();   
                                     }
                                 }
                                 else {
-                                    console.log("[Client " + ag.index + "] ...oups je n'ai pas scanné le produit...");
+                                    //// // // console.log("[Client " + ag.index + "] ...oups je n'ai pas scanné le produit...");
                                 }
                             }.bind(null, agent, produit));
                             continue;
@@ -1312,12 +1312,12 @@
                                 if (Math.random() > 0.5) {
                                     montantAchats = Math.ceil(montantAchats / 10) * 10;
                                 }
-                                console.log("[Client " + agent.index + "] paye : " + montantAchats);
+                                // console.log("[Client " + agent.index + "] paye : " + montantAchats);
                                 var monnaie = agent.obj.caisse.payer(montantAchats);
                                 if (monnaie > 0) {
-                                    console.log("[Client " + agent.index + "] prend sa monnaie : " + monnaie);
+                                    // console.log("[Client " + agent.index + "] prend sa monnaie : " + monnaie);
                                 }
-                                console.log("[Client " + agent.index + "] a fini ses courses et s'en va");
+                                // console.log("[Client " + agent.index + "] a fini ses courses et s'en va");
                                 // normalement c'est fini pour l'agent
                                 allAgents.splice(i, 1);
                                 i--;
@@ -1331,13 +1331,13 @@
                             if (agentCaissier.produitsAAjouter) {
                                 if (agentCaissier.produitsAAjouter.length == 0) {
                                     agent.obj.caisse.fermerSession();
-                                    console.log("[Caissier " + agentCaissier.index + "] ferme sa session"); 
+                                    // // // console.log("[Caissier " + agentCaissier.index + "] ferme sa session"); 
                                     delete agentCaissier.produitsAAjouter;   
                                 }
                                 else {
                                     var eanProd = agentCaissier.produitsAAjouter.pop();
                                     agent.obj.caisse.ajouter(eanProd);   
-                                    console.log("[Caissier " + agentCaissier.index + "] ajoute un produit de code " + eanProd); 
+                                    // // // console.log("[Caissier " + agentCaissier.index + "] ajoute un produit de code " + eanProd); 
                                 }
                                 continue;
                             }
@@ -1348,7 +1348,7 @@
                                     case 2: // en cours de relecture
                                         if (agentCaissier.produitsARelire.length == 0) {
                                             // problème : il manque des articles dans le panier --> repose la scanette, termine avec le client
-                                            console.log("[Caissier " + agentCaissier.index + "] annule les achats -> plus d'articles scannés que d'articles relus" + eanProd); 
+                                            // // // console.log("[Caissier " + agentCaissier.index + "] annule les achats -> plus d'articles scannés que d'articles relus" + eanProd); 
                                             agentCaissier.scanette.reposer();
                                             agentCaissier.takesCareOf = null;
                                             delete agentCaissier.produitsARelire;
@@ -1362,7 +1362,7 @@
                                             // évite de scanner les produits qui ne sont pas reconnus
                                             if (agentCaissier.scanette.current.getReferencesInconnuesSilent().indexOf(eanProd) < 0) {
                                                 agentCaissier.scanette.current.scanner(eanProd);
-                                                console.log("[Caissier " + agentCaissier.index + "] relecture d'un produit de code " + eanProd); 
+                                                // // console.log("[Caissier " + agentCaissier.index + "] relecture d'un produit de code " + eanProd); 
                                                 if (currentSelection == agentCaissier) {
                                                     agentCaissier.scanette.afficher();   
                                                 }
@@ -1370,12 +1370,12 @@
                                         }
                                         break;
                                     case 3:     // relecture finie OK
-                                        console.log("[Caissier " + agentCaissier.index + "] relecture terminée, transfert à la caisse"); 
+                                        // // console.log("[Caissier " + agentCaissier.index + "] relecture terminée, transfert à la caisse"); 
                                         agentCaissier.scanette.transferer(agent.obj.caisse);
                                         delete agentCaissier.produitsARelire;
                                         break;
                                     case 4:     // relecture finie KO
-                                        console.log("[Caissier " + agentCaissier.index + "] Erreur de relecture --> Produit inconnu"); 
+                                        // // console.log("[Caissier " + agentCaissier.index + "] Erreur de relecture --> Produit inconnu"); 
                                         agentCaissier.scanette.reposer();
                                         agentCaissier.takesCareOf = null;
                                         delete agentCaissier.produitsARelire;
@@ -1393,9 +1393,9 @@
                                 // ouverture de session sur la caisse
                                 agent.obj.caisse.ouvrirSession();
                                 agentCaissier.produitsAAjouter = agent.obj.getCaddie().map(function(art) { return art.ean; });
-                                console.log("[Caissier " + agentCaissier.index + "] Contrôle de panier vide --> caddie : " +
-                                            agentCaissier.produitsAAjouter.length + " article(s)"); 
-                                console.log("[Caissier " + agentCaissier.index + "] Ouverture de session"); 
+                                // // console.log("[Caissier " + agentCaissier.index + "] Contrôle de panier vide --> caddie : " +
+                                        //    agentCaissier.produitsAAjouter.length + " article(s)"); 
+                                // // console.log("[Caissier " + agentCaissier.index + "] Ouverture de session"); 
                                 continue;
                             }
                             
@@ -1404,15 +1404,15 @@
                                 // ouverture de session sur la caisse
                                 agent.obj.caisse.ouvrirSession();
                                 agentCaissier.produitsAAjouter = agent.obj.caisse.caisse.getReferencesInconnues().clone();
-                                console.log("[Caissier " + agentCaissier.index + "] Contrôle de références inconnues " +
-                                            agentCaissier.produitsAAjouter.length + " article(s)"); 
-                                console.log("[Caissier " + agentCaissier.index + "] Ouverture de session"); 
+                                // // console.log("[Caissier " + agentCaissier.index + "] Contrôle de références inconnues " +
+                                      //      agentCaissier.produitsAAjouter.length + " article(s)"); 
+                                // // console.log("[Caissier " + agentCaissier.index + "] Ouverture de session"); 
                                 continue;
                             }
                             
                             // relecture a effectuer
                             if (agentCaissier.scanette != null && agentCaissier.scanette.current.getState() == 2) {
-                                console.log("[Caissier " + agentCaissier.index + "] Début relecture"); 
+                                // // console.log("[Caissier " + agentCaissier.index + "] Début relecture"); 
                                 agentCaissier.produitsARelire = agent.obj.getCaddie().map(function(art) { return art.ean; });
                                 continue;
                             }
@@ -1425,7 +1425,7 @@
                         
                         // pas de caisse libre --> patiente
                         if (caissesLibres.length == 0) {
-                            console.log("[Client " + agent.index + "] Pas de caisse disponible --> se balade en attendant");
+                            // // console.log("[Client " + agent.index + "] Pas de caisse disponible --> se balade en attendant");
                             // retourne dans un rayon au hasard
                             var randomRayon = Math.random()*rayons.length | 0;
                             deplacerClientVers(agent.obj, rayons, randomRayon, function(ag, ray) {
@@ -1434,18 +1434,18 @@
                                     var produit = ray.articles.pickOne();
                                     c.ajouter(produit.ean);
                                     c.scanette.current.scanner(produit.ean);
-                                    console.log("[Client " + ag.index + "] Scanné produit : " + produit.libelle);
+                                    // // console.log("[Client " + ag.index + "] Scanné produit : " + produit.libelle);
                                     if (c == currentSelection) {
                                         c.scanette.afficher();   
                                     }
-                                    console.log("[Client " + ag.index + "] Ajouté au caddie : " + produit.libelle);
+                                    // // console.log("[Client " + ag.index + "] Ajouté au caddie : " + produit.libelle);
                                 }
                             }.bind(null, agent, rayons[randomRayon]));   
                             continue;
                         }
                         
                         // caisse libre --> s'y rend
-                        console.log("[Client " + agent.index + "] va à la caisse");
+                        // // console.log("[Client " + agent.index + "] va à la caisse");
                         deplacerClientVers(agent.obj, caissesLibres, 0, function(cl, ca) {
                             if (ca.client == null) {
                                 if (cl.scanette.transferer(ca) >= 0) {
